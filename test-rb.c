@@ -145,7 +145,7 @@ static void test_all_elements(struct rbt_tree *tree, TS ts[], int size)
 static struct rbt_tree *create_tree(TS ts[], int size)
 {
     int i                 = 0;
-    struct rbt_tree *tree = rbt_tree_create(compare_rb_e, (rbt_node_destruct)0);
+    struct rbt_tree *tree = rbt_tree_create(false, compare_rb_e, NULL);
     for (i = 0; i < size; i++) {
         rbt_tree_insert(tree, &(ts[i].element), sizeof((ts[i].element)));
     }
@@ -237,7 +237,7 @@ void test_c_rb2(void)
 {
     struct rbt_node *node;
     int i;
-    struct rbt_tree *t = rbt_tree_create(compare_rb_e, NULL);
+    struct rbt_tree *t = rbt_tree_create(false, compare_rb_e, NULL);
 
     srand((unsigned int)time(NULL));
 
@@ -277,15 +277,16 @@ int count = 0;
 void destroy_e_alloc(void *p)
 {
     int *_p = *(int **)p;
-    free(_p);
     ++count;
+    free(_p);
 }
 
 void test_c_rb2_alloc(void)
 {
     struct rbt_node *node;
     int i;
-    struct rbt_tree *t = rbt_tree_create(compare_rb_e_alloc, destroy_e_alloc);
+    struct rbt_tree *t =
+        rbt_tree_create(false, compare_rb_e_alloc, destroy_e_alloc);
 
     srand((unsigned int)time(NULL));
 
@@ -293,6 +294,7 @@ void test_c_rb2_alloc(void)
         int *x = (int *)calloc(1, sizeof(*x));
         *x = rand() % 10000;
         if (RBT_STATUS_KEY_DUPLICATE == rbt_tree_insert(t, &x, sizeof(x))) {
+            free(x);
             continue;
         }
         node = (struct rbt_node *)rbt_tree_find(t, &x);
@@ -339,7 +341,7 @@ void test_rbt_string(void)
 {
     const struct rbt_node *node;
     size_t i;
-    struct rbt_tree *t = rbt_tree_create(str_ptr_compare, string_ptr_destroy);
+    struct rbt_tree *t = rbt_tree_create(false, str_ptr_compare, string_ptr_destroy);
     for (i = 0; i < sizeof(strArr) / sizeof(strArr[0]); i++) {
         char *y;
         char *p = strdup(strArr[i]);
@@ -375,7 +377,7 @@ void test_rbt_string2(void)
     const struct rbt_node *node;
     rbt_status s;
     size_t i;
-    struct rbt_tree *t = rbt_tree_create(string_ptr_compare2, NULL);
+    struct rbt_tree *t = rbt_tree_create(false, string_ptr_compare2, NULL);
     for (i = 0; i < sizeof(strArr) / sizeof(strArr[0]); i++) {
         char *y;
         char *p = strArr[i];
