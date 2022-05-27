@@ -250,16 +250,14 @@ static struct rbt_node *_create_node(struct rbt_tree *tree, void *key, size_t s)
     return node;
 }
 
-static void _node_clearup(struct rbt_node *node, bool destroy)
+static void _node_destroy(struct rbt_node *node)
 {
     assert(node);
     if (node) {
         _do_node_destruct(node);
         free(node->key);
         node->key = NULL;
-        if (destroy) {
-            free(node);
-        }
+        free(node);
     }
 }
 
@@ -288,7 +286,7 @@ rbt_status rbt_tree_insert(struct rbt_tree *tree, void *key, size_t size)
     while (rbt_node_is_valid(y)) {
         int c = _rb_node_compare(x, y);
         if (c == 0) {
-            _node_clearup(x, true);
+            _node_destroy(x);
             return RBT_STATUS_KEY_DUPLICATE;
         }
         z = y;
@@ -421,7 +419,7 @@ rbt_status rbt_tree_remove_node(struct rbt_tree *tree, const void *key)
         return RBT_STATUS_KEY_NOT_EXIST;
     }
     x = _remove_rb(tree, z);
-    _node_clearup(x, true);
+    _node_destroy(x);
 
     return RBT_STATUS_SUCCESS;
 }
@@ -437,18 +435,17 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
         } else if (rbt_node_is_valid(z->right)) {
             z = z->right;
         } else {
-            _node_clearup(z, false);
             if (rbt_node_is_valid(z->parent)) {
                 z = z->parent;
                 if (rbt_node_is_valid(z->left)) {
-                    free(z->left);
+                    _node_destroy(z->left);
                     z->left = rb_sentinel(tree);
                 } else if (rbt_node_is_valid(z->right)) {
-                    free(z->right);
+                    _node_destroy(z->right);
                     z->right = rb_sentinel(tree);
                 }
             } else {
-                free(z);
+                _node_destroy(z);
                 z = rb_sentinel(tree);
             }
         }
@@ -456,6 +453,30 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
     free(tree);
     return rc;
 }
+
+/*
+void _rbt_node_destroy_recurse(struct rbt_node *node)
+{
+    if (rbt_node_is_valid(node)) {
+        if (rbt_node_is_valid(node->left)) {
+            _rbt_node_destroy_recurse(node->left);
+        }
+        if (rbt_node_is_valid(node->right)) {
+            _rbt_node_destroy_recurse(node->right);
+        }
+        _node_destroy(node);
+    }
+}
+
+rbt_status rbt_tree_destroy(struct rbt_tree *tree)
+{
+    if (tree) {
+        _rbt_node_destroy_recurse(tree->root);
+        free(tree);
+    }
+    return RBT_STATUS_SUCCESS;
+}
+*/
 
 struct rbt_node *rbt_tree_minimum(struct rbt_tree *tree, struct rbt_node *x)
 {
