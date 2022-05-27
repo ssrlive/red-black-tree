@@ -4,6 +4,7 @@
 
 extern void test_c_rb();
 extern void test_c_rb2(void);
+void test_c_rb2_alloc(void);
 void test_rbt_string(void);
 void test_rbt_string2(void);
 
@@ -55,6 +56,7 @@ int main(int argc, char **argv)
         printf("Performing test for red-black tree\n");
         test_c_rb();
         test_c_rb2();
+        test_c_rb2_alloc();
         test_rbt_string();
         test_rbt_string2();
     }
@@ -253,6 +255,57 @@ void test_c_rb2(void)
         rbt_tree_remove_node(t, &x);
     }
     rbt_tree_destroy(t);
+}
+
+
+int compare_rb_e_alloc(const void *l, const void *r)
+{
+    int left  = **(int **)l;
+    int right = **(int **)r;
+
+    if (left < right) {
+        return -1;
+    } else if (left == right) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int count = 0;
+
+void destroy_e_alloc(void *p)
+{
+    int *_p = *(int **)p;
+    free(_p);
+    ++count;
+}
+
+void test_c_rb2_alloc(void)
+{
+    struct rbt_node *node;
+    int i;
+    struct rbt_tree *t = rbt_tree_create(compare_rb_e_alloc, destroy_e_alloc);
+
+    srand((unsigned int)time(NULL));
+
+    for (i = 0; i < 5000; i++) {
+        int *x = (int *)calloc(1, sizeof(*x));
+        *x = rand() % 10000;
+        if (RBT_STATUS_KEY_DUPLICATE == rbt_tree_insert(t, &x, sizeof(x))) {
+            continue;
+        }
+        node = (struct rbt_node *)rbt_tree_find(t, &x);
+        assert(**((int **)rbt_node_get_key(node)) == *x);
+        (void)node;
+    }
+    for (i = 0; i < 60000; i++) {
+        int x = rand() % 10000;
+        int *p = &x;
+        rbt_tree_remove_node(t, &p);
+    }
+    rbt_tree_destroy(t);
+    printf("==== delete count %d ====\n", count);
 }
 
 char *strArr[] = {
