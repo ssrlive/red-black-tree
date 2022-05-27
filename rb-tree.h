@@ -10,7 +10,10 @@ extern "C" {
 typedef enum { rbt_red = 0, rbt_black = 1 } rbt_color;
 
 #ifndef __cplusplus
+#ifndef __bool_true_false_are_defined
+#define __bool_true_false_are_defined 1
 typedef enum { false = 0, true = 1 } bool;
+#endif
 #endif
 
 typedef enum {
@@ -23,6 +26,7 @@ typedef enum {
 struct rbt_tree;
 struct rbt_node;
 
+bool rbt_node_is_valid(const struct rbt_node *node);
 rbt_color rbt_node_get_color(const struct rbt_node *node);
 struct rbt_node *rbt_node_get_left(const struct rbt_node *node);
 struct rbt_node *rbt_node_get_right(const struct rbt_node *node);
@@ -35,7 +39,7 @@ typedef int (*rbt_node_compare)(const void *, const void *);
 struct rbt_tree *rbt_tree_create(rbt_node_compare cmp, rbt_node_destruct dest);
 struct rbt_node *rbt_tree_get_root(struct rbt_tree *tree);
 rbt_status rbt_tree_insert(struct rbt_tree *tree, void *key, size_t size);
-const struct rbt_node *rbt_tree_find(struct rbt_tree *tree, const void *key);
+struct rbt_node *rbt_tree_find(struct rbt_tree *tree, const void *key);
 rbt_status rbt_tree_remove_node(struct rbt_tree *tree, const void *key);
 rbt_status rbt_tree_destroy(struct rbt_tree *tree);
 bool rbt_tree_is_empty(struct rbt_tree *tree);

@@ -109,11 +109,11 @@ static void retrieve_values(const struct rbt_node *v, TS *data,
     struct rbt_node *x = NULL;
     data->element      = *(int *)get_key(tree, v);
     data->color        = rbt_node_get_color(v);
-    if ((x = rbt_node_get_left(v)))
+    if ((x = rbt_node_get_left(v)) && rbt_node_is_valid(x))
         data->left = *(int *)get_key(tree, x);
-    if ((x = rbt_node_get_right(v)))
+    if ((x = rbt_node_get_right(v)) && rbt_node_is_valid(x))
         data->right = *(int *)get_key(tree, x);
-    if ((x = rbt_node_get_parent(v)))
+    if ((x = rbt_node_get_parent(v)) && rbt_node_is_valid(x))
         data->parent = *(int *)get_key(tree, x);
 }
 
@@ -228,6 +228,7 @@ void test_c_rb()
     {
         rbt_tree_destroy(tree);
     }
+    (void)s;
 }
 
 void test_c_rb2(void)
@@ -245,6 +246,7 @@ void test_c_rb2(void)
         }
         node = (struct rbt_node *)rbt_tree_find(t, &x);
         assert(*((int *)rbt_node_get_key(node)) == x);
+        (void)node;
     }
     for (i = 0; i < 60000; i++) {
         int x = rand() % 10000;
@@ -294,6 +296,7 @@ void test_rbt_string(void)
         node = rbt_tree_find(t, &strArr[i]);
         y    = *(char **)rbt_node_get_key(node);
         assert(strcmp(y, strArr[i]) == 0);
+        (void)y;
     }
 
     printf("\n==== test_rbt_string ====\n");
@@ -329,10 +332,12 @@ void test_rbt_string2(void)
         node = rbt_tree_find(t, strArr[i]);
         y    = (char *)rbt_node_get_key(node);
         assert(strcmp(y, strArr[i]) == 0);
+        (void)y;
     }
 
     s = rbt_tree_remove_node(t, strArr[0]);
     assert(s == RBT_STATUS_SUCCESS);
+    (void)s;
 
     printf("\n==== test_rbt_string2 ====\n");
     rbt_inorder_walk(t, node_walk_cb4, NULL);
