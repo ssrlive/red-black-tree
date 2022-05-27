@@ -257,7 +257,6 @@ void test_c_rb2(void)
     rbt_tree_destroy(t);
 }
 
-
 int compare_rb_e_alloc(const void *l, const void *r)
 {
     int left  = **(int **)l;
@@ -292,7 +291,7 @@ void test_c_rb2_alloc(void)
 
     for (i = 0; i < 5000; i++) {
         int *x = (int *)calloc(1, sizeof(*x));
-        *x = rand() % 10000;
+        *x     = rand() % 10000;
         if (RBT_STATUS_KEY_DUPLICATE == rbt_tree_insert(t, &x, sizeof(x))) {
             free(x);
             continue;
@@ -302,7 +301,7 @@ void test_c_rb2_alloc(void)
         (void)node;
     }
     for (i = 0; i < 60000; i++) {
-        int x = rand() % 10000;
+        int x  = rand() % 10000;
         int *p = &x;
         rbt_tree_remove_node(t, &p);
     }
@@ -341,7 +340,8 @@ void test_rbt_string(void)
 {
     const struct rbt_node *node;
     size_t i;
-    struct rbt_tree *t = rbt_tree_create(false, str_ptr_compare, string_ptr_destroy);
+    struct rbt_tree *t =
+        rbt_tree_create(false, str_ptr_compare, string_ptr_destroy);
     for (i = 0; i < sizeof(strArr) / sizeof(strArr[0]); i++) {
         char *y;
         char *p = strdup(strArr[i]);

@@ -105,7 +105,7 @@ static void __left_rotate(struct rbt_tree *T, struct rbt_node *x)
     } else {
         x->parent->right = y;
     }
-    y->left = x;
+    y->left   = x;
     x->parent = y;
 }
 
@@ -124,7 +124,7 @@ static void __right_rotate(struct rbt_tree *T, struct rbt_node *x)
     } else {
         x->parent->left = y;
     }
-    y->right = x;
+    y->right  = x;
     x->parent = y;
 }
 
@@ -277,7 +277,7 @@ static void __rb_insert(struct rbt_tree *T, struct rbt_node *z)
     } else {
         y->right = z;
     }
-    z->left = T->nil;
+    z->left  = T->nil;
     z->right = T->nil;
     z->color = rbt_red;
     __rb_insert_fixup(T, z);
@@ -383,18 +383,18 @@ static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
         x = z->left;
         __rb_transplant(T, z, z->left);
     } else {
-        y = rbt_tree_minimum(T, z->right);
+        y                = rbt_tree_minimum(T, z->right);
         y_original_color = y->color;
         x                = y->right;
         if (y->parent == z) {
             x->parent = y;
         } else {
             __rb_transplant(T, y, y->right);
-            y->right = z->right;
+            y->right         = z->right;
             y->right->parent = y;
         }
         __rb_transplant(T, z, y);
-        y->left = z->left;
+        y->left         = z->left;
         y->left->parent = y;
         y->color        = z->color;
     }
