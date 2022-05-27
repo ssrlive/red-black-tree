@@ -359,7 +359,8 @@ static void __rb_delete_fixup(struct rbt_tree *tree, struct rbt_node *x)
     x->color = rbt_black;
 }
 
-void rb_transplant(struct rbt_tree *T, struct rbt_node *u, struct rbt_node *v)
+static void __rb_transplant(struct rbt_tree *T, struct rbt_node *u,
+                            struct rbt_node *v)
 {
     if (u->parent == T->nil) {
         T->root = v;
@@ -377,10 +378,10 @@ static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
     rbt_color y_original_color = y->color;
     if (z->left == T->nil) {
         x = z->right;
-        rb_transplant(T, z, z->right);
+        __rb_transplant(T, z, z->right);
     } else if (z->right == T->nil) {
         x = z->left;
-        rb_transplant(T, z, z->left);
+        __rb_transplant(T, z, z->left);
     } else {
         y = rbt_tree_minimum(T, z->right);
         y_original_color = y->color;
@@ -388,11 +389,11 @@ static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
         if (y->parent == z) {
             x->parent = y;
         } else {
-            rb_transplant(T, y, y->right);
+            __rb_transplant(T, y, y->right);
             y->right = z->right;
             y->right->parent = y;
         }
-        rb_transplant(T, z, y);
+        __rb_transplant(T, z, y);
         y->left = z->left;
         y->left->parent = y;
         y->color        = z->color;
