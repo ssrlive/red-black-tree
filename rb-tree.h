@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef enum { rbt_red = 0, rbt_black = 1 } rbt_color;
 

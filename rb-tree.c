@@ -303,15 +303,15 @@ rbt_status rbt_tree_insert(struct rbt_tree *tree, void *key, size_t size)
     return RBT_STATUS_SUCCESS;
 }
 
-static void __rb_delete_fixup(struct rbt_tree *tree, struct rbt_node *x)
+static void __rb_delete_fixup(struct rbt_tree *T, struct rbt_node *x)
 {
-    while (x != tree->root && x->color == rbt_black) {
+    while (x != T->root && x->color == rbt_black) {
         if (x == x->parent->left) {
             struct rbt_node *w = x->parent->right;
             if (w->color == rbt_red) {
                 w->color         = rbt_black;
                 x->parent->color = rbt_red;
-                __left_rotate(tree, x->parent);
+                __left_rotate(T, x->parent);
                 w = x->parent->right;
             }
             if (w->left->color == rbt_black && w->right->color == rbt_black) {
@@ -321,21 +321,21 @@ static void __rb_delete_fixup(struct rbt_tree *tree, struct rbt_node *x)
                 if (w->right->color == rbt_black) {
                     w->left->color = rbt_black;
                     w->color       = rbt_red;
-                    __right_rotate(tree, w);
+                    __right_rotate(T, w);
                     w = x->parent->right;
                 }
                 w->color         = x->parent->color;
                 x->parent->color = rbt_black;
                 w->right->color  = rbt_black;
-                __left_rotate(tree, x->parent);
-                x = tree->root;
+                __left_rotate(T, x->parent);
+                x = T->root;
             }
         } else {
             struct rbt_node *w = x->parent->left;
             if (w->color == rbt_red) {
                 w->color         = rbt_black;
                 x->parent->color = rbt_red;
-                __right_rotate(tree, x->parent);
+                __right_rotate(T, x->parent);
                 w = x->parent->left;
             }
             if (w->right->color == rbt_black && w->left->color == rbt_black) {
@@ -345,14 +345,14 @@ static void __rb_delete_fixup(struct rbt_tree *tree, struct rbt_node *x)
                 if (w->left->color == rbt_black) {
                     w->right->color = rbt_black;
                     w->color        = rbt_red;
-                    __left_rotate(tree, w);
+                    __left_rotate(T, w);
                     w = x->parent->left;
                 }
                 w->color         = x->parent->color;
                 x->parent->color = rbt_black;
                 w->left->color   = rbt_black;
-                __right_rotate(tree, x->parent);
-                x = tree->root;
+                __right_rotate(T, x->parent);
+                x = T->root;
             }
         }
     }
@@ -372,6 +372,18 @@ static void __rb_transplant(struct rbt_tree *T, struct rbt_node *u,
     v->parent = u->parent;
 }
 
+struct rbt_node *__tree_minimum(struct rbt_node *x)
+{
+    struct rbt_tree *T;
+    assert(x);
+    T = x->tree;
+    assert(T);
+    while (x->left != T->nil) {
+        x = x->left;
+    }
+    return x;
+}
+
 static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
 {
     struct rbt_node *x, *y = z;
@@ -383,7 +395,7 @@ static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
         x = z->left;
         __rb_transplant(T, z, z->left);
     } else {
-        y                = rbt_tree_minimum(T, z->right);
+        y                = __tree_minimum(z->right);
         y_original_color = y->color;
         x                = y->right;
         if (y->parent == z) {
@@ -474,17 +486,8 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
 
 struct rbt_node *rbt_tree_minimum(struct rbt_tree *tree, struct rbt_node *x)
 {
-    assert(tree);
-    assert(x);
-    if (x == NULL || x == tree->nil) {
-        return x;
-    }
-    assert(tree == x->tree);
-    while (rbt_node_is_valid(x->left)) {
-        x = x->left;
-    }
     (void)tree;
-    return x;
+    return __tree_minimum(x);
 }
 
 struct rbt_node *rbt_tree_maximum(struct rbt_tree *tree, struct rbt_node *x)
@@ -517,7 +520,7 @@ struct rbt_node *rbt_tree_successor(struct rbt_tree *tree, struct rbt_node *x)
     assert(x);
     y = tree->nil;
     if (x->right != tree->nil) {
-        return rbt_tree_minimum(tree, x->right);
+        return __tree_minimum(x->right);
     }
     if (x == rbt_tree_maximum(tree, tree->root)) {
         return tree->nil;
