@@ -6,15 +6,9 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef enum { rbt_red = 0, rbt_black = 1 } rbt_color;
-
-#ifndef __cplusplus
-#ifndef __bool_true_false_are_defined
-#define __bool_true_false_are_defined 1
-typedef enum { false = 0, true = 1 } bool;
-#endif
-#endif
 
 typedef enum {
     RBT_STATUS_SUCCESS       = 0,
