@@ -240,6 +240,8 @@ void test_c_rb2(void)
     struct rbt_tree *t = rbt_tree_create(false, compare_rb_e, NULL);
 
     srand((unsigned int)time(NULL));
+    
+    assert(rbt_tree_is_empty(t));
 
     for (i = 0; i < 5000; i++) {
         int x = rand() % 10000;
