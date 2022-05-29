@@ -199,22 +199,49 @@ static void __rb_insert_fixup(struct rbt_tree *T, struct rbt_node *z)
     T->root->color = rbt_black;
 }
 
+#if 1
+
 struct rbt_node *rbt_tree_find(struct rbt_tree *tree, const void *key)
 {
     struct rbt_node *x;
+    int c = 0;
     assert(tree);
     assert(key);
     x = tree->root;
-    while (rbt_node_is_valid(x)) {
-        int c = tree->node_compare(key, x->key);
-        if (c == 0) {
-            break;
-        } else {
-            x = c < 0 ? x->left : x->right;
-        }
+    while ((x != tree->nil) && (c = tree->node_compare(key, x->key)) != 0) {
+        x = (c < 0) ? x->left : x->right;
     }
     return x;
 }
+
+#else
+
+static struct rbt_node *__tree_search(struct rbt_node *x, const void*k)
+{
+    struct rbt_tree *tree;
+    int cmp;
+    assert(x);
+    assert(k);
+    tree = x->tree;
+    assert(tree->node_compare);
+    if (x == tree->nil || (cmp = tree->node_compare(k, x->key)) == 0) {
+        return x;
+    }
+    if (cmp < 0) {
+        return __tree_search(x->left, k);
+    } else {
+        return __tree_search(x->right, k);
+    }
+}
+
+struct rbt_node *rbt_tree_find(struct rbt_tree *tree, const void *key)
+{
+    assert(tree);
+    assert(key);
+    return __tree_search(tree->root, key);
+}
+
+#endif
 
 static struct rbt_node *_create_node(struct rbt_tree *tree, void *key, size_t s)
 {
@@ -430,6 +457,8 @@ rbt_status rbt_tree_remove_node(struct rbt_tree *tree, const void *key)
     return RBT_STATUS_SUCCESS;
 }
 
+#if 1
+
 rbt_status rbt_tree_destroy(struct rbt_tree *tree)
 {
     rbt_status rc      = RBT_STATUS_SUCCESS;
@@ -460,7 +489,8 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
     return rc;
 }
 
-/*
+#else
+
 void _rbt_node_destroy_recurse(struct rbt_node *node)
 {
     if (rbt_node_is_valid(node)) {
@@ -482,7 +512,8 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
     }
     return RBT_STATUS_SUCCESS;
 }
-*/
+
+#endif
 
 struct rbt_node *rbt_tree_minimum(struct rbt_tree *tree, struct rbt_node *x)
 {
