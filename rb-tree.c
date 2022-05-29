@@ -68,8 +68,11 @@ struct rbt_node *rbt_node_get_parent(const struct rbt_node *node)
 
 const void *rbt_node_get_key(const struct rbt_node *node)
 {
+    struct rbt_tree *tree;
     assert(node);
-    if (rbt_node_is_valid(node)) {
+    tree = node->tree;
+    assert(tree);
+    if (node != tree->nil) {
         return node->key;
     }
     return (void *)0;
@@ -81,7 +84,7 @@ static void _do_node_destruct(struct rbt_node *node)
     assert(node);
     tree = node->tree;
     assert(tree);
-    if (rbt_node_is_valid(node)) {
+    if (node != tree->nil) {
         if (tree->node_destruct) {
             tree->node_destruct(node->key);
         }
@@ -464,18 +467,18 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
     rbt_status rc      = RBT_STATUS_SUCCESS;
     struct rbt_node *z = tree->root;
 
-    while (rbt_node_is_valid(z)) {
-        if (rbt_node_is_valid(z->left)) {
+    while (z != tree->nil) {
+        if (z->left != tree->nil) {
             z = z->left;
-        } else if (rbt_node_is_valid(z->right)) {
+        } else if (z->right != tree->nil) {
             z = z->right;
         } else {
-            if (rbt_node_is_valid(z->parent)) {
+            if (z->parent != tree->nil) {
                 z = z->parent;
-                if (rbt_node_is_valid(z->left)) {
+                if (z->left != tree->nil) {
                     _node_destroy(z->left);
                     z->left = tree->nil;
-                } else if (rbt_node_is_valid(z->right)) {
+                } else if (z->right != tree->nil) {
                     _node_destroy(z->right);
                     z->right = tree->nil;
                 }
@@ -493,11 +496,11 @@ rbt_status rbt_tree_destroy(struct rbt_tree *tree)
 
 void _rbt_node_destroy_recurse(struct rbt_node *node)
 {
-    if (rbt_node_is_valid(node)) {
-        if (rbt_node_is_valid(node->left)) {
+    if (node != tree->nil) {
+        if (node->left != tree->nil) {
             _rbt_node_destroy_recurse(node->left);
         }
-        if (rbt_node_is_valid(node->right)) {
+        if (node->right != tree->nil) {
             _rbt_node_destroy_recurse(node->right);
         }
         _node_destroy(node);
@@ -528,7 +531,7 @@ struct rbt_node *rbt_tree_maximum(struct rbt_tree *tree, struct rbt_node *x)
     if (x == NULL || x == tree->nil) {
         return x;
     }
-    while (rbt_node_is_valid(x->right)) {
+    while (x->right != tree->nil) {
         x = x->right;
     }
     (void)tree;
@@ -538,10 +541,7 @@ struct rbt_node *rbt_tree_maximum(struct rbt_tree *tree, struct rbt_node *x)
 bool rbt_tree_is_empty(struct rbt_tree *tree)
 {
     assert(tree);
-    if (rbt_node_is_valid(tree->root)) {
-        return true;
-    }
-    return false;
+    return (tree->root == tree->nil) ? true : false;
 }
 
 struct rbt_node *rbt_tree_successor(struct rbt_tree *tree, struct rbt_node *x)
@@ -557,7 +557,7 @@ struct rbt_node *rbt_tree_successor(struct rbt_tree *tree, struct rbt_node *x)
         return tree->nil;
     }
     y = x->parent;
-    while (rbt_node_is_valid(y) && x == y->right) {
+    while ((y != tree->nil) && (x == y->right)) {
         x = y;
         y = y->parent;
     }
@@ -566,7 +566,11 @@ struct rbt_node *rbt_tree_successor(struct rbt_tree *tree, struct rbt_node *x)
 
 static void _inorder_tree_walk(struct rbt_node *x, rbt_node_walk_cb cb, void *p)
 {
-    if (rbt_node_is_valid(x)) {
+    struct rbt_tree *tree;
+    assert(x);
+    tree = x->tree;
+    assert(tree);
+    if (x != tree->nil) {
         _inorder_tree_walk(x->left, cb, p);
         if (cb) {
             cb(x, p);
@@ -589,16 +593,16 @@ cstl_rb_get_next(struct rbt_tree* tree, struct rbt_node**current, struct rbt_nod
     assert(tree);
     assert(current);
     assert(pre);
-    while (rbt_node_is_valid((*current))) {
-        if (false == rbt_node_is_valid((*current)->left)) {
+    while ((*current) != tree->nil) {
+        if ((*current)->left == tree->nil) {
             prev_current = (*current);
             (*current) = (*current)->right;
             return prev_current;
         } else {
             (*pre) = (*current)->left;
-            while (rbt_node_is_valid((*pre)->right) && (*pre)->right != (*current))
+            while (((*pre)->right != tree->nil) && (*pre)->right != (*current))
                 (*pre) = (*pre)->right;
-            if (rbt_node_is_valid((*pre)->right)) {
+            if ((*pre)->right != tree->nil) {
                 (*pre)->right = (*current);
                 (*current) = (*current)->left;
             } else {
@@ -622,7 +626,7 @@ void debug_verify_properties(struct rbt_tree *t)
 
 void debug_verify_property_1(struct rbt_tree *tree, struct rbt_node *n)
 {
-    if (false == rbt_node_is_valid(n)) {
+    if (n == tree->nil) {
         return;
     }
     assert(debug_node_color(tree, n) == rbt_red ||
@@ -641,7 +645,7 @@ void debug_verify_property_2(struct rbt_tree *tree, struct rbt_node *root)
 int debug_node_color(struct rbt_tree *tree, struct rbt_node *n)
 {
     (void)tree;
-    return false == rbt_node_is_valid(n) ? rbt_black : n->color;
+    return (n == tree->nil) ? rbt_black : n->color;
 }
 
 void debug_verify_property_4(struct rbt_tree *tree, struct rbt_node *n)
@@ -651,7 +655,7 @@ void debug_verify_property_4(struct rbt_tree *tree, struct rbt_node *n)
         assert(debug_node_color(tree, n->right) == rbt_black);
         assert(debug_node_color(tree, n->parent) == rbt_black);
     }
-    if (false == rbt_node_is_valid(n)) {
+    if (n == tree->nil) {
         return;
     }
     debug_verify_property_4(tree, n->left);
@@ -670,7 +674,7 @@ void debug_verify_property_5_helper(struct rbt_tree *tree, struct rbt_node *n,
     if (debug_node_color(tree, n) == rbt_black) {
         black_count++;
     }
-    if (false == rbt_node_is_valid(n)) {
+    if (n == tree->nil) {
         if (*_black_count == -1) {
             *_black_count = black_count;
         } else {
