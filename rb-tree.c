@@ -21,7 +21,7 @@ struct rbt_tree {
     struct rbt_node *root;
     struct rbt_node *nil;
     struct rbt_node sentinel;
-    bool allow_dup;
+    int allow_dup;
     rbt_node_destruct node_destruct;
     rbt_node_compare node_compare;
 };
@@ -35,7 +35,7 @@ static void debug_verify_property_5(struct rbt_tree *, struct rbt_node *);
 static void debug_verify_property_5_helper(struct rbt_tree *, struct rbt_node *,
                                            int, int *);
 
-bool rbt_node_is_valid(const struct rbt_node *node)
+int rbt_node_is_valid(const struct rbt_node *node)
 {
     assert(node);
     assert(node->tree);
@@ -86,7 +86,7 @@ static void _do_node_destruct(struct rbt_node *node)
             tree->node_destruct(node->key);
         }
     } else {
-        assert(false);
+        assert(0);
     }
 }
 
@@ -130,7 +130,7 @@ static void __right_rotate(struct rbt_tree *T, struct rbt_node *x)
 
 #define rb_sentinel(tree) &(tree)->sentinel
 
-struct rbt_tree *rbt_tree_create(bool allow_dup, rbt_node_compare cmp,
+struct rbt_tree *rbt_tree_create(int allow_dup, rbt_node_compare cmp,
                                  rbt_node_destruct dest)
 {
     struct rbt_tree *tree = (struct rbt_tree *)calloc(1, sizeof(*tree));
@@ -313,7 +313,7 @@ static void __rb_insert(struct rbt_tree *T, struct rbt_node *z)
 rbt_status rbt_tree_insert(struct rbt_tree *tree, void *key, size_t size)
 {
     struct rbt_node *x;
-    if (tree->allow_dup == false) {
+    if (tree->allow_dup == 0) {
         if (rbt_tree_find(tree, key) != tree->nil) {
             return RBT_STATUS_KEY_DUPLICATE;
         }
@@ -542,10 +542,10 @@ struct rbt_node *rbt_tree_maximum(struct rbt_tree *tree, struct rbt_node *x)
     return __tree_maximum(x);
 }
 
-bool rbt_tree_is_empty(struct rbt_tree *tree)
+int rbt_tree_is_empty(struct rbt_tree *tree)
 {
     assert(tree);
-    return (tree->root == tree->nil) ? true : false;
+    return (tree->root == tree->nil) ? 1 : 0;
 }
 
 struct rbt_node *rbt_tree_successor(struct rbt_tree *tree, struct rbt_node *x)
