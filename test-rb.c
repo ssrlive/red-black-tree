@@ -85,14 +85,16 @@ static const void *get_key(struct rbt_tree *tree, const struct rbt_node *node)
 
 int compare_rb_e(const void *l, const void *r)
 {
-    int left  = *(int *)l;
+    int left = *(int *)l;
     int right = *(int *)r;
 
     if (left < right) {
         return -1;
-    } else if (left == right) {
+    }
+    else if (left == right) {
         return 0;
-    } else {
+    }
+    else {
         return 1;
     }
 }
@@ -109,8 +111,8 @@ static void retrieve_values(const struct rbt_node *v, TS *data,
                             struct rbt_tree *tree)
 {
     struct rbt_node *x = NULL;
-    data->element      = *(int *)get_key(tree, v);
-    data->color        = rbt_node_get_color(v);
+    data->element = *(int *)get_key(tree, v);
+    data->color = rbt_node_get_color(v);
     if ((x = rbt_node_get_left(v)) && rbt_node_is_valid(x))
         data->left = *(int *)get_key(tree, x);
     if ((x = rbt_node_get_right(v)) && rbt_node_is_valid(x))
@@ -144,7 +146,7 @@ static void test_all_elements(struct rbt_tree *tree, TS ts[], int size)
 
 static struct rbt_tree *create_tree(TS ts[], int size)
 {
-    int i                 = 0;
+    int i = 0;
     struct rbt_tree *tree = rbt_tree_create(0, compare_rb_e, NULL);
     for (i = 0; i < size; i++) {
         rbt_tree_insert(tree, &(ts[i].element), sizeof((ts[i].element)));
@@ -200,24 +202,24 @@ void test_c_rb()
     tree = create_tree(ts, size);
     test_all_elements(tree, ts, size);
     {
-        i                 = 13;
-        size              = (sizeof(ts) / sizeof(TS));
+        i = 13;
+        size = (sizeof(ts) / sizeof(TS));
         size_after_delete = (sizeof(ts_delete_leaf_13) / sizeof(TS));
-        s                 = rbt_tree_remove_node(tree, &i);
+        s = rbt_tree_remove_node(tree, &i);
         assert(s == RBT_STATUS_SUCCESS);
         test_all_elements(tree, ts_delete_leaf_13, size_after_delete);
     }
     {
-        i                 = 9;
+        i = 9;
         size_after_delete = (sizeof(ts_delete_9) / sizeof(TS));
-        s                 = rbt_tree_remove_node(tree, &i);
+        s = rbt_tree_remove_node(tree, &i);
         assert(s == RBT_STATUS_SUCCESS);
         test_all_elements(tree, ts_delete_9, size_after_delete);
     }
     {
-        i                 = 15;
+        i = 15;
         size_after_delete = (sizeof(ts_delete_15) / sizeof(TS));
-        s                 = rbt_tree_remove_node(tree, &i);
+        s = rbt_tree_remove_node(tree, &i);
         assert(s == RBT_STATUS_SUCCESS);
         test_all_elements(tree, ts_delete_15, size_after_delete);
     }
@@ -262,14 +264,16 @@ void test_c_rb2(void)
 
 int compare_rb_e_alloc(const void *l, const void *r)
 {
-    int left  = **(int **)l;
+    int left = **(int **)l;
     int right = **(int **)r;
 
     if (left < right) {
         return -1;
-    } else if (left == right) {
+    }
+    else if (left == right) {
         return 0;
-    } else {
+    }
+    else {
         return 1;
     }
 }
@@ -294,7 +298,7 @@ void test_c_rb2_alloc(void)
 
     for (i = 0; i < 5000; i++) {
         int *x = (int *)calloc(1, sizeof(*x));
-        *x     = rand() % 10000;
+        *x = rand() % 10000;
         if (RBT_STATUS_KEY_DUPLICATE == rbt_tree_insert(t, &x, sizeof(x))) {
             free(x);
             continue;
@@ -304,7 +308,7 @@ void test_c_rb2_alloc(void)
         (void)node;
     }
     for (i = 0; i < 60000; i++) {
-        int x  = rand() % 10000;
+        int x = rand() % 10000;
         int *p = &x;
         rbt_tree_remove_node(t, &p);
     }
@@ -321,7 +325,7 @@ char *strArr[] = {
 
 int str_ptr_compare(const void *lhs, const void *rhs)
 {
-    char *left  = *(char **)lhs;
+    char *left = *(char **)lhs;
     char *right = *(char **)rhs;
     return strcmp(left, right);
 }
@@ -352,7 +356,7 @@ void test_rbt_string(void)
             continue;
         }
         node = rbt_tree_find(t, &strArr[i]);
-        y    = *(char **)rbt_node_get_key(node);
+        y = *(char **)rbt_node_get_key(node);
         assert(strcmp(y, strArr[i]) == 0);
         (void)y;
     }
@@ -388,7 +392,7 @@ void test_rbt_string2(void)
             continue;
         }
         node = rbt_tree_find(t, strArr[i]);
-        y    = (char *)rbt_node_get_key(node);
+        y = (char *)rbt_node_get_key(node);
         assert(strcmp(y, strArr[i]) == 0);
         (void)y;
     }

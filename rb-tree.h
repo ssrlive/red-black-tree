@@ -10,8 +10,8 @@ extern "C" {
 typedef enum { rbt_red = 0, rbt_black = 1 } rbt_color;
 
 typedef enum {
-    RBT_STATUS_SUCCESS       = 0,
-    RBT_STATUS_MEMORY_OUT    = -1,
+    RBT_STATUS_SUCCESS = 0,
+    RBT_STATUS_MEMORY_OUT = -1,
     RBT_STATUS_KEY_DUPLICATE = -2,
     RBT_STATUS_KEY_NOT_EXIST = -3
 } rbt_status;

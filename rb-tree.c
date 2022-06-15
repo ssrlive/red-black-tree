@@ -85,7 +85,8 @@ static void _do_node_destruct(struct rbt_node *node)
         if (tree->node_destruct) {
             tree->node_destruct(node->key);
         }
-    } else {
+    }
+    else {
         assert(0);
     }
 }
@@ -93,38 +94,42 @@ static void _do_node_destruct(struct rbt_node *node)
 static void __left_rotate(struct rbt_tree *T, struct rbt_node *x)
 {
     struct rbt_node *y = x->right;
-    x->right           = y->left;
+    x->right = y->left;
     if (y->left != T->nil) {
         y->left->parent = x;
     }
     y->parent = x->parent;
     if (x->parent == T->nil) {
         T->root = y;
-    } else if (x == x->parent->left) {
+    }
+    else if (x == x->parent->left) {
         x->parent->left = y;
-    } else {
+    }
+    else {
         x->parent->right = y;
     }
-    y->left   = x;
+    y->left = x;
     x->parent = y;
 }
 
 static void __right_rotate(struct rbt_tree *T, struct rbt_node *x)
 {
     struct rbt_node *y = x->left;
-    x->left            = y->right;
+    x->left = y->right;
     if (y->right != T->nil) {
         y->right->parent = x;
     }
     y->parent = x->parent;
     if (x->parent == T->nil) {
         T->root = y;
-    } else if (x == x->parent->right) {
+    }
+    else if (x == x->parent->right) {
         x->parent->right = y;
-    } else {
+    }
+    else {
         x->parent->left = y;
     }
-    y->right  = x;
+    y->right = x;
     x->parent = y;
 }
 
@@ -135,16 +140,16 @@ struct rbt_tree *rbt_tree_create(int allow_dup, rbt_node_compare cmp,
 {
     struct rbt_tree *tree = (struct rbt_tree *)calloc(1, sizeof(*tree));
     if (tree != (struct rbt_tree *)0) {
-        tree->node_compare    = cmp;
-        tree->node_destruct   = dest;
-        tree->nil             = rb_sentinel(tree);
-        tree->root            = tree->nil;
-        tree->sentinel.left   = tree->nil;
-        tree->sentinel.right  = tree->nil;
+        tree->node_compare = cmp;
+        tree->node_destruct = dest;
+        tree->nil = rb_sentinel(tree);
+        tree->root = tree->nil;
+        tree->sentinel.left = tree->nil;
+        tree->sentinel.right = tree->nil;
         tree->sentinel.parent = tree->nil;
-        tree->sentinel.tree   = tree;
-        tree->sentinel.color  = rbt_black;
-        tree->allow_dup       = allow_dup;
+        tree->sentinel.tree = tree;
+        tree->sentinel.color = rbt_black;
+        tree->allow_dup = allow_dup;
 
         /* make code checker happy */
         debug_verify_properties(tree);
@@ -165,32 +170,35 @@ static void __rb_insert_fixup(struct rbt_tree *T, struct rbt_node *z)
         if (z->parent == z->parent->parent->left) {
             struct rbt_node *y = z->parent->parent->right;
             if (y->color == rbt_red) {
-                z->parent->color         = rbt_black;
-                y->color                 = rbt_black;
+                z->parent->color = rbt_black;
+                y->color = rbt_black;
                 z->parent->parent->color = rbt_red;
-                z                        = z->parent->parent;
-            } else {
+                z = z->parent->parent;
+            }
+            else {
                 if (z == z->parent->right) {
                     z = z->parent;
                     __left_rotate(T, z);
                 }
-                z->parent->color         = rbt_black;
+                z->parent->color = rbt_black;
                 z->parent->parent->color = rbt_red;
                 __right_rotate(T, z->parent->parent);
             }
-        } else {
+        }
+        else {
             struct rbt_node *y = z->parent->parent->left;
             if (y->color == rbt_red) {
-                z->parent->color         = rbt_black;
-                y->color                 = rbt_black;
+                z->parent->color = rbt_black;
+                y->color = rbt_black;
                 z->parent->parent->color = rbt_red;
-                z                        = z->parent->parent;
-            } else {
+                z = z->parent->parent;
+            }
+            else {
                 if (z == z->parent->left) {
                     z = z->parent;
                     __right_rotate(T, z);
                 }
-                z->parent->color         = rbt_black;
+                z->parent->color = rbt_black;
                 z->parent->parent->color = rbt_red;
                 __left_rotate(T, z->parent->parent);
             }
@@ -216,7 +224,7 @@ struct rbt_node *rbt_tree_find(struct rbt_tree *tree, const void *key)
 
 #else
 
-static struct rbt_node *__tree_search(struct rbt_node *x, const void*k)
+static struct rbt_node *__tree_search(struct rbt_node *x, const void *k)
 {
     struct rbt_tree *tree;
     int cmp;
@@ -229,7 +237,8 @@ static struct rbt_node *__tree_search(struct rbt_node *x, const void*k)
     }
     if (cmp < 0) {
         return __tree_search(x->left, k);
-    } else {
+    }
+    else {
         return __tree_search(x->right, k);
     }
 }
@@ -247,18 +256,19 @@ static struct rbt_node *_create_node(struct rbt_tree *tree, void *key, size_t s)
 {
     struct rbt_node *node = (struct rbt_node *)calloc(1, sizeof(*node));
     if (node) {
-        node->left   = tree->nil;
-        node->right  = tree->nil;
-        node->color  = rbt_red;
+        node->left = tree->nil;
+        node->right = tree->nil;
+        node->color = rbt_red;
         node->parent = tree->nil;
-        node->tree   = tree;
+        node->tree = tree;
 
         assert(key && s);
         node->key = calloc(s, sizeof(char));
         if (node->key == NULL) {
             free(node);
             node = NULL;
-        } else {
+        }
+        else {
             memcpy(node->key, key, s);
         }
     }
@@ -292,19 +302,22 @@ static void __rb_insert(struct rbt_tree *T, struct rbt_node *z)
         y = x;
         if (_rb_node_compare(z, x) < 0) {
             x = x->left;
-        } else {
+        }
+        else {
             x = x->right;
         }
     }
     z->parent = y;
     if (y == T->nil) {
         T->root = z;
-    } else if (_rb_node_compare(z, y) < 0) {
+    }
+    else if (_rb_node_compare(z, y) < 0) {
         y->left = z;
-    } else {
+    }
+    else {
         y->right = z;
     }
-    z->left  = T->nil;
+    z->left = T->nil;
     z->right = T->nil;
     z->color = rbt_red;
     __rb_insert_fixup(T, z);
@@ -336,48 +349,51 @@ static void __rb_delete_fixup(struct rbt_tree *T, struct rbt_node *x)
         if (x == x->parent->left) {
             struct rbt_node *w = x->parent->right;
             if (w->color == rbt_red) {
-                w->color         = rbt_black;
+                w->color = rbt_black;
                 x->parent->color = rbt_red;
                 __left_rotate(T, x->parent);
                 w = x->parent->right;
             }
             if (w->left->color == rbt_black && w->right->color == rbt_black) {
                 w->color = rbt_red;
-                x        = x->parent;
-            } else {
+                x = x->parent;
+            }
+            else {
                 if (w->right->color == rbt_black) {
                     w->left->color = rbt_black;
-                    w->color       = rbt_red;
+                    w->color = rbt_red;
                     __right_rotate(T, w);
                     w = x->parent->right;
                 }
-                w->color         = x->parent->color;
+                w->color = x->parent->color;
                 x->parent->color = rbt_black;
-                w->right->color  = rbt_black;
+                w->right->color = rbt_black;
                 __left_rotate(T, x->parent);
                 x = T->root;
             }
-        } else {
+        }
+        else {
             struct rbt_node *w = x->parent->left;
             if (w->color == rbt_red) {
-                w->color         = rbt_black;
+                w->color = rbt_black;
                 x->parent->color = rbt_red;
                 __right_rotate(T, x->parent);
                 w = x->parent->left;
             }
             if (w->right->color == rbt_black && w->left->color == rbt_black) {
                 w->color = rbt_red;
-                x        = x->parent;
-            } else {
+                x = x->parent;
+            }
+            else {
                 if (w->left->color == rbt_black) {
                     w->right->color = rbt_black;
-                    w->color        = rbt_red;
+                    w->color = rbt_red;
                     __left_rotate(T, w);
                     w = x->parent->left;
                 }
-                w->color         = x->parent->color;
+                w->color = x->parent->color;
                 x->parent->color = rbt_black;
-                w->left->color   = rbt_black;
+                w->left->color = rbt_black;
                 __right_rotate(T, x->parent);
                 x = T->root;
             }
@@ -391,9 +407,11 @@ static void __rb_transplant(struct rbt_tree *T, struct rbt_node *u,
 {
     if (u->parent == T->nil) {
         T->root = v;
-    } else if (u == u->parent->left) {
+    }
+    else if (u == u->parent->left) {
         u->parent->left = v;
-    } else {
+    }
+    else {
         u->parent->right = v;
     }
     v->parent = u->parent;
@@ -418,24 +436,27 @@ static void __rb_delete(struct rbt_tree *T, struct rbt_node *z)
     if (z->left == T->nil) {
         x = z->right;
         __rb_transplant(T, z, z->right);
-    } else if (z->right == T->nil) {
+    }
+    else if (z->right == T->nil) {
         x = z->left;
         __rb_transplant(T, z, z->left);
-    } else {
-        y                = __tree_minimum(z->right);
+    }
+    else {
+        y = __tree_minimum(z->right);
         y_original_color = y->color;
-        x                = y->right;
+        x = y->right;
         if (y->parent == z) {
             x->parent = y;
-        } else {
+        }
+        else {
             __rb_transplant(T, y, y->right);
-            y->right         = z->right;
+            y->right = z->right;
             y->right->parent = y;
         }
         __rb_transplant(T, z, y);
-        y->left         = z->left;
+        y->left = z->left;
         y->left->parent = y;
-        y->color        = z->color;
+        y->color = z->color;
     }
     if (y_original_color == rbt_black) {
         __rb_delete_fixup(T, x);
@@ -461,25 +482,29 @@ rbt_status rbt_tree_remove_node(struct rbt_tree *tree, const void *key)
 
 rbt_status rbt_tree_destroy(struct rbt_tree *tree)
 {
-    rbt_status rc      = RBT_STATUS_SUCCESS;
+    rbt_status rc = RBT_STATUS_SUCCESS;
     struct rbt_node *z = tree->root;
 
     while (z != tree->nil) {
         if (z->left != tree->nil) {
             z = z->left;
-        } else if (z->right != tree->nil) {
+        }
+        else if (z->right != tree->nil) {
             z = z->right;
-        } else {
+        }
+        else {
             if (z->parent != tree->nil) {
                 z = z->parent;
                 if (z->left != tree->nil) {
                     _node_destroy(z->left);
                     z->left = tree->nil;
-                } else if (z->right != tree->nil) {
+                }
+                else if (z->right != tree->nil) {
                     _node_destroy(z->right);
                     z->right = tree->nil;
                 }
-            } else {
+            }
+            else {
                 _node_destroy(z);
                 z = tree->nil;
             }
@@ -681,7 +706,8 @@ void debug_verify_property_5_helper(struct rbt_tree *tree, struct rbt_node *n,
     if (n == tree->nil) {
         if (*_black_count == -1) {
             *_black_count = black_count;
-        } else {
+        }
+        else {
             assert(black_count == *_black_count);
         }
         return;
