@@ -121,7 +121,7 @@ PenaltyBreakString: 10
 PenaltyExcessCharacter: 100
 PenaltyReturnTypeOnItsOwnLine: 60
 
-PointerAlignment: Right
+PointerAlignment: Left
 ReflowComments: false
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
