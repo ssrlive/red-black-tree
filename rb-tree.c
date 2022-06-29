@@ -328,19 +328,19 @@ rbt_status rbt_tree_insert(struct rbt_tree* tree, void* key, size_t size)
     struct rbt_node* x;
     if (tree->allow_dup == 0) {
         if (rbt_tree_find(tree, key) != tree->nil) {
-            return RBT_STATUS_KEY_DUPLICATE;
+            return rbt_status_key_duplicate;
         }
     }
     x = _create_node(tree, key, size);
     if (x == (struct rbt_node*)NULL) {
-        return RBT_STATUS_MEMORY_OUT;
+        return rbt_status_memory_out;
     }
     __rb_insert(tree, x);
 
 #ifndef NDEBUG
     debug_verify_properties(tree);
 #endif
-    return RBT_STATUS_SUCCESS;
+    return rbt_status_success;
 }
 
 static void __rb_delete_fixup(struct rbt_tree* T, struct rbt_node* x)
@@ -467,7 +467,7 @@ rbt_status rbt_tree_remove_node(struct rbt_tree* tree, const void* key)
 {
     struct rbt_node* z = rbt_tree_find(tree, key);
     if (z == tree->nil) {
-        return RBT_STATUS_KEY_NOT_EXIST;
+        return rbt_status_key_not_exist;
     }
     __rb_delete(tree, z);
     _node_destroy(z);
@@ -475,14 +475,14 @@ rbt_status rbt_tree_remove_node(struct rbt_tree* tree, const void* key)
 #ifndef NDEBUG
     debug_verify_properties(tree);
 #endif
-    return RBT_STATUS_SUCCESS;
+    return rbt_status_success;
 }
 
 #if 1
 
 rbt_status rbt_tree_destroy(struct rbt_tree* tree)
 {
-    rbt_status rc = RBT_STATUS_SUCCESS;
+    rbt_status rc = rbt_status_success;
     struct rbt_node* z = tree->root;
 
     while (z != tree->nil) {
@@ -518,6 +518,7 @@ rbt_status rbt_tree_destroy(struct rbt_tree* tree)
 
 void _rbt_node_destroy_recurse(struct rbt_node* node)
 {
+    struct rbt_tree* tree = node->tree;
     if (node != tree->nil) {
         if (node->left != tree->nil) {
             _rbt_node_destroy_recurse(node->left);
@@ -535,7 +536,7 @@ rbt_status rbt_tree_destroy(struct rbt_tree* tree)
         _rbt_node_destroy_recurse(tree->root);
         free(tree);
     }
-    return RBT_STATUS_SUCCESS;
+    return rbt_status_success;
 }
 
 #endif
