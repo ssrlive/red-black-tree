@@ -26,11 +26,15 @@ struct rbt_node* rbt_node_get_right(const struct rbt_node* node);
 struct rbt_node* rbt_node_get_parent(const struct rbt_node* node);
 const void* rbt_node_get_key(const struct rbt_node* node);
 
+typedef void* (*rbt_mem_allocate)(size_t size);
+typedef void (*rbt_mem_release)(void* ptr);
+
 typedef void (*rbt_node_destruct)(void*);
 typedef int (*rbt_node_compare)(const void*, const void*);
 
-struct rbt_tree* rbt_tree_create(int allow_dup, rbt_node_compare cmp,
-                                 rbt_node_destruct dest);
+struct rbt_tree* rbt_tree_create(rbt_mem_allocate allocator,
+                                 rbt_mem_release releaser, int allow_dup,
+                                 rbt_node_compare cmp, rbt_node_destruct dest);
 struct rbt_node* rbt_tree_get_root(struct rbt_tree* tree);
 rbt_status rbt_tree_insert(struct rbt_tree* tree, void* key, size_t size);
 struct rbt_node* rbt_tree_find(struct rbt_tree* tree, const void* key);
