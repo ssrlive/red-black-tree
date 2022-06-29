@@ -147,7 +147,8 @@ static void test_all_elements(struct rbt_tree* tree, TS ts[], int size)
 static struct rbt_tree* create_tree(TS ts[], int size)
 {
     int i = 0;
-    struct rbt_tree* tree = rbt_tree_create(0, compare_rb_e, NULL);
+    struct rbt_tree* tree =
+        rbt_tree_create(malloc, free, 0, compare_rb_e, NULL);
     for (i = 0; i < size; i++) {
         rbt_tree_insert(tree, &(ts[i].element), sizeof((ts[i].element)));
     }
@@ -239,7 +240,7 @@ void test_c_rb2(void)
 {
     struct rbt_node* node;
     int i;
-    struct rbt_tree* t = rbt_tree_create(0, compare_rb_e, NULL);
+    struct rbt_tree* t = rbt_tree_create(malloc, free, 0, compare_rb_e, NULL);
 
     srand((unsigned int)time(NULL));
 
@@ -292,7 +293,7 @@ void test_c_rb2_alloc(void)
     struct rbt_node* node;
     int i;
     struct rbt_tree* t =
-        rbt_tree_create(0, compare_rb_e_alloc, destroy_e_alloc);
+        rbt_tree_create(malloc, free, 0, compare_rb_e_alloc, destroy_e_alloc);
 
     srand((unsigned int)time(NULL));
 
@@ -348,7 +349,7 @@ void test_rbt_string(void)
     const struct rbt_node* node;
     size_t i;
     struct rbt_tree* t =
-        rbt_tree_create(0, str_ptr_compare, string_ptr_destroy);
+        rbt_tree_create(malloc, free, 0, str_ptr_compare, string_ptr_destroy);
     for (i = 0; i < sizeof(strArr) / sizeof(strArr[0]); i++) {
         char* y;
         char* p = strdup(strArr[i]);
@@ -384,7 +385,8 @@ void test_rbt_string2(void)
     const struct rbt_node* node;
     rbt_status s;
     size_t i;
-    struct rbt_tree* t = rbt_tree_create(0, string_ptr_compare2, NULL);
+    struct rbt_tree* t =
+        rbt_tree_create(malloc, free, 0, string_ptr_compare2, NULL);
     for (i = 0; i < sizeof(strArr) / sizeof(strArr[0]); i++) {
         char* y;
         char* p = strArr[i];
